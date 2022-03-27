@@ -1,11 +1,3 @@
-# Create public IPs
-resource "azurerm_public_ip" "controllerpublicip" {
-  name                = "controllerPublicIP"
-  location            = "Central US"
-  resource_group_name = "rglab"
-  allocation_method   = "Static"
-}
-
 # Inherit deployed subnet 
 data "azurerm_subnet" "subnetid" {
   name                 = "labsubnet"
@@ -20,35 +12,34 @@ data "azurerm_network_security_group" "nsglabid" {
 }
 
 # Create network interface
-resource "azurerm_network_interface" "controllernic" {
-  name                = "controllernic"
+resource "azurerm_network_interface" "node02nic" {
+  name                = "node02nic"
   location            = "Central US"
   resource_group_name = "rglab"
 
   ip_configuration {
-    name                          = "controllernicconfig"
+    name                          = "node02nicconfig"
     subnet_id                     = data.azurerm_subnet.subnetid.id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.controllerpublicip.id
   }
 }
 
 # Connect the security group to the network interface
 resource "azurerm_network_interface_security_group_association" "example" {
-  network_interface_id      = azurerm_network_interface.controllernic.id
+  network_interface_id      = azurerm_network_interface.node02nic.id
   network_security_group_id = data.azurerm_network_security_group.nsglabid.id
 }
 
 # Create virtual machine
-resource "azurerm_linux_virtual_machine" "controllervm" {
-  name                  = "controller"
+resource "azurerm_linux_virtual_machine" "node02vm" {
+  name                  = "node02"
   location              = "Central US"
   resource_group_name   = "rglab"
-  network_interface_ids = [azurerm_network_interface.controllernic.id]
+  network_interface_ids = [azurerm_network_interface.node02nic.id]
   size                  = "Standard_DS1"
 
   os_disk {
-    name                 = "controllerDisk"
+    name                 = "node02Disk"
     caching              = "ReadWrite"
     storage_account_type = "Premium_LRS"
   }
@@ -60,7 +51,7 @@ resource "azurerm_linux_virtual_machine" "controllervm" {
     version   = "latest"
   }
 
-  computer_name                   = "controller"
+  computer_name                   = "node02"
   admin_username                  = "juan"
   disable_password_authentication = true
 

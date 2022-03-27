@@ -9,7 +9,7 @@ terraform {
         resource_group_name  = "rglab"
         storage_account_name = "stlabyqspm"
         container_name       = "tfstate"
-        key                  = "virtual-machines/node02/terraform.tfstate"
+        key                  = "virtual-machines/node01/terraform.tfstate"
     }
 }
 
